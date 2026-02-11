@@ -1,0 +1,200 @@
+<div class="screen">
+  <div class="topbar glass">
+    <div class="brand">
+      <div class="title">قهوة البلة</div>
+      <div class="subtitle">لوحة المدير — ERP</div>
+    </div>
+
+    <div class="topmeta">
+      <div class="chip" id="mgrUserChip">👤 المدير</div>
+      <div class="chip" id="mgrLiveClock">🕒 --:--:--</div>
+      <div class="chip money" id="mgrShiftBalance">💰 رصيد الوردية: 0</div>
+      <button class="btn primary" id="btnSync">🔗 ربط / QR</button>
+    </div>
+  </div>
+
+  <div class="contentGrid">
+    <div class="kpis glass">
+      <div class="kpi">
+        <div class="kpiLabel">مبيعات اليوم</div>
+        <div class="kpiVal" id="kpiSales">0</div>
+        <div class="kpiSub" id="kpiSalesSplit">نقدي 0 • إلكتروني 0 • آجل 0</div>
+      </div>
+      <div class="kpi">
+        <div class="kpiLabel">مشتريات اليوم</div>
+        <div class="kpiVal" id="kpiBuys">0</div>
+        <div class="kpiSub" id="kpiBuysSplit">نقدي 0 • آجل 0</div>
+      </div>
+      <div class="kpi">
+        <div class="kpiLabel">طلبات ساخنة</div>
+        <div class="kpiVal" id="kpiHot">0</div>
+        <div class="kpiSub">قيد التحضير الآن</div>
+      </div>
+      <div class="kpi">
+        <div class="kpiLabel">ذمم العملاء</div>
+        <div class="kpiVal" id="kpiCustomerDebt">0</div>
+        <div class="kpiSub">إجمالي أرصدة العملاء</div>
+      </div>
+      <div class="kpi">
+        <div class="kpiLabel">ذمم الموردين</div>
+        <div class="kpiVal" id="kpiSupplierDebt">0</div>
+        <div class="kpiSub">إجمالي أرصدة الموردين</div>
+      </div>
+      <div class="kpi">
+        <div class="kpiLabel">المخزون</div>
+        <div class="kpiVal" id="kpiStock">OK</div>
+        <div class="kpiSub" id="kpiStockSub">منخفض: 0</div>
+      </div>
+    </div>
+
+    <div class="adminPanel glass">
+      <div class="tabs">
+        <button class="tab active" data-tab="users">المستخدمين والأدوار</button>
+        <button class="tab" data-tab="catalog">الأقسام/الأصناف/المنتجات</button>
+        <button class="tab" data-tab="customers">العملاء</button>
+        <button class="tab" data-tab="suppliers">الموردين</button>
+        <button class="tab" data-tab="shifts">الورديات</button>
+        <button class="tab" data-tab="reports">التقارير</button>
+        <button class="tab" data-tab="settings">الإعدادات</button>
+      </div>
+
+      <div class="tabBody" id="mgrTabBody">
+        <!-- users -->
+        <div class="tabPage" data-page="users">
+          <div class="row">
+            <div class="box glass2">
+              <div class="boxTitle">إدارة المستخدمين</div>
+              <div class="hint">المدير له كل الأدوار • الموظف: (المكنة/المحاسب/الجارسون)</div>
+
+              <div class="formRow">
+                <input class="inp" id="uName" placeholder="اسم المستخدم" />
+                <input class="inp" id="uPass" placeholder="كلمة المرور" />
+                <select class="inp" id="uRole">
+                  <option value="ADMIN">مدير</option>
+                  <option value="STAFF">موظف</option>
+                </select>
+                <button class="btn" id="btnAddUser">➕ إضافة</button>
+              </div>
+
+              <div class="table" id="usersTable"></div>
+            </div>
+
+            <div class="box glass2">
+              <div class="boxTitle">وقت الاستخدام</div>
+              <div class="hint">يحسب بالدقائق/الساعات لكل مستخدم ودور.</div>
+              <div class="table" id="usageTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- catalog -->
+        <div class="tabPage hidden" data-page="catalog">
+          <div class="row">
+            <div class="box glass2">
+              <div class="boxTitle">الأقسام</div>
+              <div class="formRow">
+                <input class="inp" id="catName" placeholder="اسم القسم" />
+                <button class="btn" id="btnAddCat">➕</button>
+              </div>
+              <div class="list" id="catsList"></div>
+            </div>
+
+            <div class="box glass2">
+              <div class="boxTitle">الأصناف</div>
+              <div class="formRow">
+                <select class="inp" id="subCatSelect"></select>
+                <input class="inp" id="subName" placeholder="اسم الصنف" />
+                <button class="btn" id="btnAddSub">➕</button>
+              </div>
+              <div class="list" id="subsList"></div>
+            </div>
+
+            <div class="box glass2">
+              <div class="boxTitle">المنتجات + باركود</div>
+              <div class="hint">كل منتج مرتبط بباركود. ويمكن إدخاله عبر ماسح باركود لاحقاً.</div>
+              <div class="formRow">
+                <select class="inp" id="prodSubSelect"></select>
+                <input class="inp" id="prodName" placeholder="اسم المنتج" />
+                <input class="inp" id="prodPrice" placeholder="السعر" />
+                <input class="inp" id="prodBarcode" placeholder="Barcode" />
+                <button class="btn" id="btnAddProd">➕ إضافة</button>
+              </div>
+              <div class="table" id="prodsTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- customers -->
+        <div class="tabPage hidden" data-page="customers">
+          <div class="box glass2">
+            <div class="boxTitle">العملاء (رصيد / ذمم)</div>
+            <div class="hint">مبيعات الآجل تُضاف لرصيد العميل • النقدي لا.</div>
+            <div class="table" id="customersTable"></div>
+          </div>
+        </div>
+
+        <!-- suppliers -->
+        <div class="tabPage hidden" data-page="suppliers">
+          <div class="box glass2">
+            <div class="boxTitle">الموردين (رصيد / فواتير شراء)</div>
+            <div class="hint">فاتورة شراء: تضيف للمخزون + تضيف على المورد (آجل) أو تخصم من الوردية (نقدي).</div>
+            <div class="table" id="suppliersTable"></div>
+          </div>
+        </div>
+
+        <!-- shifts -->
+        <div class="tabPage hidden" data-page="shifts">
+          <div class="row">
+            <div class="box glass2">
+              <div class="boxTitle">الوردية الحالية</div>
+              <div class="formRow">
+                <input class="inp" id="shiftStartCash" placeholder="رصيد افتتاح (كاش)" />
+                <button class="btn primary" id="btnOpenShift">فتح وردية</button>
+                <button class="btn danger" id="btnCloseShift">إغلاق وردية</button>
+              </div>
+              <div class="hint" id="shiftInfo">—</div>
+            </div>
+
+            <div class="box glass2">
+              <div class="boxTitle">سجل الورديات</div>
+              <div class="table" id="shiftsTable"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- reports -->
+        <div class="tabPage hidden" data-page="reports">
+          <div class="box glass2">
+            <div class="boxTitle">التقارير</div>
+            <div class="hint">رح نضيف: تقرير يومي / شهري / حركة مخزون / ذمم.</div>
+          </div>
+        </div>
+
+        <!-- settings -->
+        <div class="tabPage hidden" data-page="settings">
+          <div class="box glass2">
+            <div class="boxTitle">الإعدادات</div>
+            <div class="hint">صوت الطلبات • أجهزة الموظفين • ربط باركود.</div>
+
+            <div class="formRow">
+              <label class="chk"><input type="checkbox" id="setSound" checked> تفعيل صوت الطلبات</label>
+              <button class="btn" id="btnTestSound">🔊 تجربة الصوت</button>
+            </div>
+
+            <div class="boxMini glass3">
+              <div class="miniTitle">ربط جهاز جديد (موظف/زبون)</div>
+              <div class="hint">سنستخدم QR: الجهاز الرئيسي يولد كود، والجهاز الثاني يمسحه للاتصال بالشبكة المحلية.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="liveOrders glass">
+      <div class="boxTitle">الطلبات الحية (ساخنة فقط)</div>
+      <div class="hint">تظهر طلبات الزبون / الجارسون / المحاسب حسب حالة HOT.</div>
+      <div class="orders" id="hotOrdersList"></div>
+    </div>
+  </div>
+</div>

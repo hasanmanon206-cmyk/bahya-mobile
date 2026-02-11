@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+<link rel="manifest" href="./manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>قهوة البلة - كاشير</title>
+  <style>
+    :root{
+      --bg:#041725;
+      --panel:rgba(10,35,55,.55);
+      --stroke:rgba(0,190,255,.35);
+      --glow:rgba(0,190,255,.22);
+      --txt:#eaf7ff;
+      --muted:#9cc7da;
+      --ok:#00ff99;
+      --warn:#ffd34d;
+      --bad:#ff4d4d;
+      --btn:#00c8ff;
+      --btn2:rgba(0,200,255,.14);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --r:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, Arial;
+      background: radial-gradient(1200px 700px at 70% 20%, rgba(0,190,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 20% 80%, rgba(0,255,153,.08), transparent 55%),
+                  var(--bg);
+      color:var(--txt);
+      min-height:100vh;
+    }
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 14px;
+      background: linear-gradient(180deg, rgba(2,24,40,.92), rgba(2,24,40,.55));
+      border-bottom:1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight:800; letter-spacing:.3px;
+      color:#7fe6ff;
+    }
+    .chip{
+      padding:6px 10px; border-radius:999px;
+      background: var(--panel);
+      border:1px solid var(--stroke);
+      box-shadow: 0 0 0 1px rgba(0,190,255,.08) inset;
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .top-right{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-start;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 360px; /* أقسام / أصناف / منتجات / سلة */
+      gap:12px;
+      padding:12px;
+      height: calc(100vh - 58px);
+    }
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--stroke);
+      border-radius: var(--r);
+      box-shadow: var(--shadow), 0 0 40px var(--glow) inset;
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .panel h3{
+      margin:0;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(0,190,255,.18);
+      color:#bfefff;
+      font-size:14px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .list{
+      padding:10px;
+      overflow:auto;
+      display:grid;
+      gap:10px;
+      align-content:start;
+    }
+    .gridBtns{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .btnCard{
+      cursor:pointer;
+      padding:12px;
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(0,200,255,.14), rgba(0,0,0,.06));
+      border:1px solid rgba(0,190,255,.25);
+      box-shadow: 0 0 0 1px rgba(0,190,255,.06) inset;
+      color:var(--txt);
+      text-align:center;
+      user-select:none;
+      transition:.15s transform, .15s box-shadow, .15s border-color;
+    }
+    .btnCard:hover{ transform: translateY(-1px); border-color:rgba(0,190,255,.5); box-shadow: 0 0 18px rgba(0,190,255,.18); }
+    .btnCard.active{ outline:2px solid rgba(0,200,255,.55); }
+    .small{font-size:12px;color:var(--muted); margin-top:6px}
+    .productsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .prod{
+      text-align:right;
+      padding:12px;
+    }
+    .prod .name{ font-weight:700; }
+    .prod .price{ color:#7fe6ff; margin-top:6px; font-weight:800; }
+    .basketTabs{
+      display:flex; gap:6px; padding:10px; border-bottom:1px solid rgba(0,190,255,.18);
+      overflow:auto;
+    }
+    .tab{
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,.12);
+      border:1px solid rgba(0,190,255,.18);
+      color:var(--muted);
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .tab.active{ background:rgba(0,200,255,.16); color:#d9fbff; border-color:rgba(0,200,255,.5); }
+    .basketBody{
+      padding:10px;
+      overflow:auto;
+      display:flex; flex-direction:column; gap:8px;
+      flex:1;
+    }
+    .line{
+      display:flex; justify-content:space-between; gap:8px;
+      padding:10px;
+      border-radius:12px;
+      background:rgba(0,0,0,.12);
+      border:1px solid rgba(0,190,255,.14);
+    }
+    .line b{color:#d9fbff}
+    .line .meta{ color:var(--muted); font-size:12px; margin-top:4px; }
+    .basketFooter{
+      padding:10px;
+      border-top:1px solid rgba(0,190,255,.18);
+      display:grid;
+      gap:8px;
+    }
+    .total{
+      display:flex; justify-content:space-between; align-items:center;
+      font-weight:900;
+      color:var(--ok);
+      font-size:18px;
+    }
+    .btnRow{
+      display:grid; grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    .btn{
+      border:none; cursor:pointer;
+      border-radius:12px;
+      padding:10px;
+      font-weight:800;
+      background: var(--btn);
+      color:#032033;
+    }
+    .btn.ghost{
+      background: rgba(0,200,255,.14);
+      border:1px solid rgba(0,200,255,.35);
+      color:#c9f6ff;
+    }
+
+    /* مودال */
+    .modalBack{
+      position:fixed; inset:0; display:none;
+      background:rgba(0,0,0,.55);
+      align-items:center; justify-content:center;
+      z-index:50;
+      padding:14px;
+    }
+    .modal{
+      width:min(520px, 100%);
+      background: rgba(8,28,45,.92);
+      border:1px solid rgba(0,200,255,.35);
+      border-radius:18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 0 60px rgba(0,190,255,.15) inset;
+      backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:12px 14px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid rgba(0,190,255,.18);
+      color:#d9fbff;
+      font-weight:900;
+    }
+    .close{ cursor:pointer; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.18); border:1px solid rgba(0,190,255,.18); color:#d9fbff; }
+    .modalBody{ padding:14px; display:grid; gap:12px; }
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .input{
+      width:100%; padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(0,190,255,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      font-size:16px;
+      outline:none;
+    }
+    .sugar{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;
+    }
+    .sBtn{
+      padding:10px; border-radius:12px;
+      background:rgba(0,0,0,.14);
+      border:1px solid rgba(0,190,255,.18);
+      color:#d9fbff;
+      cursor:pointer;
+      text-align:center;
+      font-weight:800;
+    }
+    .sBtn.active{ background:rgba(0,200,255,.16); border-color:rgba(0,200,255,.55); }
+    .hint{ color:var(--muted); font-size:12px; line-height:1.5; }
+    .danger{ color: var(--bad); }
+
+    /* زر الزبون */
+    .iconBtn{
+      cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(0,200,255,.14);
+      border:1px solid rgba(0,200,255,.35);
+      color:#c9f6ff;
+      font-weight:800;
+    }
+  </style>
+  <link rel="stylesheet" href="src/erp.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <span>☕ قهوة البلة</span>
+      <span class="chip">ERP Cashier</span>
+    </div>
+
+    <div class="top-right">
+      <span class="chip">المستخدم: <b id="uName">الكاشير</b></span>
+      <span class="chip">الساعة: <b id="clock">--:--:--</b></span>
+      <span class="chip">رصيد الوردية: <b id="shiftBal">0</b> $</span>
+      <span class="iconBtn" onclick="openCustomerInbox()">👤 طلبات الزبائن</span>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- الأقسام -->
+    <div class="panel">
+      <h3>الأقسام <span class="small" id="catHint"></span></h3>
+      <div class="list gridBtns" id="cats"></div>
+    </div>
+
+    <!-- الأصناف -->
+    <div class="panel">
+      <h3>الأصناف <span class="small" id="subHint"></span></h3>
+      <div class="list gridBtns" id="subs"></div>
+    </div>
+
+    <!-- المنتجات -->
+    <div class="panel">
+      <h3>المنتجات <span class="small" id="prodHint"></span></h3>
+      <div class="list productsGrid" id="prods"></div>
+    </div>
+
+    <!-- السلة -->
+    <div class="panel">
+      <h3>سلة الطلب</h3>
+      <div class="basketTabs" id="tabs"></div>
+      <div class="basketBody" id="basket"></div>
+      <div class="basketFooter">
+        <div class="total">
+          <span>المجموع</span>
+          <span id="total">0 $</span>
+        </div>
+        <div class="btnRow">
+          <button class="btn ghost" onclick="newBasket()">+ سلة جديدة</button>
+          <button class="btn ghost" onclick="clearBasket()">تفريغ السلة</button>
+        </div>
+        <div class="btnRow">
+          <button class="btn" onclick="saveInvoice('نقدي')">حفظ (نقدي)</button>
+          <button class="btn" onclick="saveInvoice('آجل')">حفظ (آجل)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- مودال المنتج -->
+  <div class="modalBack" id="modalBack">
+    <div class="modal">
+      <div class="modalHead">
+        <span id="mTitle">منتج</span>
+        <span class="close" onclick="closeModal()">إغلاق</span>
+      </div>
+      <div class="modalBody">
+        <div class="row2">
+          <div>
+            <div class="hint">العدد</div>
+            <input class="input" id="mQty" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <div class="hint">ملاحظة (اختياري)</div>
+            <input class="input" id="mNote" type="text" placeholder="مثلاً: كوب كبير" />
+          </div>
+        </div>
+
+        <div class="hint">مستوى السكر</div>
+        <div class="sugar" id="sugarBtns"></div>
+
+        <div class="hint">
+          ✅ عند الضغط “إضافة” سيتم إدخال المنتج في السلة كسطر مستقل (يسمح بالتكرار بنفس المنتج بسكر مختلف).<br>
+          <span class="danger">هذا هو نفس منطق “المودل” الذي طلبته للجارسون والزبون أيضاً.</span>
+        </div>
+
+        <div class="btnRow">
+          <button class="btn ghost" onclick="closeModal()">إلغاء</button>
+          <button class="btn" onclick="confirmAdd()">إضافة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال طلبات الزبائن (واجهة فقط حالياً) -->
+  <div class="modalBack" id="inboxBack">
+    <div class="modal">
+      <div class="modalHead">
+        <span>طلبات الزبائن (واجهة)</span>
+        <span class="close" onclick="document.getElementById('inboxBack').style.display='none'">إغلاق</span>
+      </div>
+      <div class="modalBody" id="inboxBody">
+        <div class="hint">حالياً هذه واجهة فقط. لاحقاً: عند ورود طلب من الزبون يظهر هنا مع صوت + قبول/رفض.</div>
+        <div class="line">
+          <div>
+            <b>زبون: أحمد</b>
+            <div class="meta">طلب: قهوة (سكر وسط) × 1</div>
+          </div>
+          <div style="display:flex; gap:8px">
+            <button class="btn ghost" style="width:auto" onclick="alert('تم الرفض (واجهة)')">رفض</button>
+            <button class="btn" style="width:auto" onclick="alert('تم القبول (واجهة)')">قبول</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ===== بيانات تجريبية بنفس منطق النظام =====
+  const DB = {
+    categories: [
+      {id:"hot", name:"مشروبات ساخنة"},
+      {id:"cold", name:"مشروبات باردة"},
+      {id:"shisha", name:"أراجيل"},
+      {id:"snack", name:"سناك"}
+    ],
+    subs: [
+      {id:"coffee", cat:"hot", name:"قهوة"},
+      {id:"tea", cat:"hot", name:"شاي"},
+      {id:"juice", cat:"cold", name:"عصائر"},
+      {id:"soda", cat:"cold", name:"غازيات"},
+      {id:"head", cat:"shisha", name:"رؤوس"},
+      {id:"mix", cat:"shisha", name:"معسل"},
+      {id:"chips", cat:"snack", name:"شيبس"},
+      {id:"sweet", cat:"snack", name:"حلويات"}
+    ],
+    products: [
+      {id:"p1", sub:"coffee", name:"قهوة سادة", price:1, hot:true},
+      {id:"p2", sub:"coffee", name:"نسكافيه", price:2, hot:true},
+      {id:"p3", sub:"tea", name:"شاي", price:1, hot:true},
+      {id:"p4", sub:"juice", name:"عصير برتقال", price:2, hot:false},
+      {id:"p5", sub:"soda", name:"بيبسي", price:1.5, hot:false},
+      {id:"p6", sub:"mix", name:"معسل تفاحتين", price:3, hot:false},
+      {id:"p7", sub:"head", name:"رأس VIP", price:2, hot:false},
+      {id:"p8", sub:"chips", name:"شيبس", price:1, hot:false},
+    ]
+  };
+
+  // ===== حالة واجهة =====
+  let activeCat = DB.categories[0].id;
+  let activeSub = null;
+
+  const sugars = ["سادة","سكر قليل","وسط","عصملي","حلوة"];
+  let modalProd = null;
+  let modalSugar = sugars[0];
+
+  // ===== سلات متعددة =====
+  let baskets = [
+    {id: "سلة 1", items: []}
+  ];
+  let activeBasketIndex = 0;
+
+  // ===== UI helpers =====
+  function $(id){ return document.getElementById(id); }
+  function money(x){ return (Math.round(x*100)/100).toString().replace(/\.0$/,''); }
+
+  function tickClock(){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const ss = String(d.getSeconds()).padStart(2,'0');
+    $("clock").textContent = `${hh}:${mm}:${ss}`;
+  }
+  setInterval(tickClock, 1000); tickClock();
+
+  // ===== Render الأقسام =====
+  function renderCats(){
+    const wrap = $("cats");
+    wrap.innerHTML = "";
+    DB.categories.forEach(c=>{
+      const div = document.createElement("div");
+      div.className = "btnCard" + (c.id===activeCat ? " active" : "");
+      div.innerHTML = `<div style="font-weight:900">${c.name}</div><div class="small">اضغط لعرض الأصناف</div>`;
+      div.onclick = ()=>{
+        activeCat = c.id;
+        activeSub = null;
+        renderAll();
+      };
+      wrap.appendChild(div);
+    });
+    $("catHint").textContent = DB.categories.find(x=>x.id===activeCat)?.name || "";
+  }
+
+  // ===== Render الأصناف =====
+  function renderSubs(){
+    const wrap = $("subs");
+    wrap.innerHTML = "";
+    const list = DB.subs.filter(s=>s.cat===activeCat);
+    if(!activeSub && list.length) activeSub = list[0].id;
+
+    list.forEach(s=>{
+      const div = document.createElement("div");
+      div.className = "btnCard" + (s.id===activeSub ? " active" : "");
+      div.innerHTML = `<div style="font-weight:900">${s.name}</div><div class="small">اصناف القسم</div>`;
+      div.onclick = ()=>{
+        activeSub = s.id;
+        renderProducts();
+      };
+      wrap.appendChild(div);
+    });
+
+    $("subHint").textContent = DB.subs.find(x=>x.id===activeSub)?.name || "اختر صنف";
+  }
+
+  // ===== Render المنتجات =====
+  function renderProducts(){
+    const wrap = $("prods");
+    wrap.innerHTML = "";
+
+    if(!activeSub){
+      $("prodHint").textContent = "اختر صنف أولاً";
+      return;
+    }
+    $("prodHint").textContent = "اضغط المنتج لإضافته";
+    const list = DB.products.filter(p=>p.sub===activeSub);
+
+    list.forEach(p=>{
+      const div = document.createElement("div");
+      div.className = "btnCard prod";
+      div.innerHTML = `
+        <div class="name">${p.name}</div>
+        <div class="small">${p.hot ? "🔥 ساخن" : "❄️ بارد"}</div>
+        <div class="price">${money(p.price)} $</div>
+      `;
+      div.onclick = ()=> openModal(p);
+      wrap.appendChild(div);
+    });
+  }
+
+  // ===== Tabs السلات =====
+  function renderTabs(){
+    const wrap = $("tabs");
+    wrap.innerHTML = "";
+    baskets.forEach((b,idx)=>{
+      const t = document.createElement("div");
+      t.className = "tab" + (idx===activeBasketIndex ? " active" : "");
+      t.textContent = b.id;
+      t.onclick = ()=>{ activeBasketIndex = idx; renderBasket(); renderTabs(); };
+      wrap.appendChild(t);
+    });
+  }
+
+  // ===== Render السلة =====
+  function renderBasket(){
+    const wrap = $("basket");
+    wrap.innerHTML = "";
+    const items = baskets[activeBasketIndex].items;
+
+    let total = 0;
+    items.forEach((it, i)=>{
+      total += it.price * it.qty;
+      const div = document.createElement("div");
+      div.className = "line";
+      div.innerHTML = `
+        <div>
+          <b>${it.name}</b>
+          <div class="meta">سكر: ${it.sugar} | عدد: ${it.qty}${it.note ? " | " + it.note : ""}</div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-weight:900;color:#7fe6ff">${money(it.price * it.qty)} $</div>
+          <div class="small" style="cursor:pointer;color:#ff9aa2" onclick="removeLine(${i})">حذف</div>
+        </div>
+      `;
+      wrap.appendChild(div);
+    });
+
+    $("total").textContent = `${money(total)} $`;
+  }
+
+  function removeLine(i){
+    baskets[activeBasketIndex].items.splice(i,1);
+    renderBasket();
+  }
+
+  // ===== مودال المنتج (عدد + سكر) =====
+  function openModal(p){
+    modalProd = p;
+    modalSugar = sugars[0];
+    $("mTitle").textContent = p.name;
+    $("mQty").value = 1;
+    $("mNote").value = "";
+
+    const sWrap = $("sugarBtns");
+    sWrap.innerHTML = "";
+    sugars.forEach(s=>{
+      const b = document.createElement("div");
+      b.className = "sBtn" + (s===modalSugar ? " active" : "");
+      b.textContent = s;
+      b.onclick = ()=>{
+        modalSugar = s;
+        [...sWrap.children].forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+      };
+      sWrap.appendChild(b);
+    });
+
+    $("modalBack").style.display = "flex";
+  }
+
+  function closeModal(){
+    $("modalBack").style.display = "none";
+  }
+
+  function confirmAdd(){
+    const qty = Math.max(1, parseInt($("mQty").value || "1",10));
+    const note = $("mNote").value.trim();
+
+    // سطر مستقل يسمح بالتكرار
+    baskets[activeBasketIndex].items.push({
+      productId: modalProd.id,
+      name: modalProd.name,
+      price: modalProd.price,
+      qty,
+      sugar: modalSugar,
+      note
+    });
+
+    closeModal();
+    renderBasket();
+  }
+
+  // ===== عمليات السلة =====
+  function newBasket(){
+    const n = baskets.length + 1;
+    baskets.push({id:`سلة ${n}`, items:[]});
+    activeBasketIndex = baskets.length - 1;
+    renderTabs();
+    renderBasket();
+  }
+
+  function clearBasket(){
+    baskets[activeBasketIndex].items = [];
+    renderBasket();
+  }
+
+  function saveInvoice(type){
+    const items = baskets[activeBasketIndex].items;
+    if(!items.length){ alert("السلة فارغة"); return; }
+
+    const all = JSON.parse(localStorage.getItem("invoices") || "[]");
+    all.push({
+      id: "INV-" + Date.now(),
+      type,
+      date: Date.now(),
+      items
+    });
+    localStorage.setItem("invoices", JSON.stringify(all));
+
+    // تحديث رصيد الوردية (واجهة)
+    let total = items.reduce((s,it)=> s + it.price*it.qty, 0);
+    const cur = parseFloat(localStorage.getItem("shiftBal") || "0");
+    const next = cur + total;
+    localStorage.setItem("shiftBal", String(next));
+    $("shiftBal").textContent = money(next);
+
+    alert("تم حفظ الفاتورة ("+type+")");
+    newBasket(); // سلة جديدة بعد الحفظ (كما طلبت)
+  }
+
+  function openCustomerInbox(){
+    $("inboxBack").style.display = "flex";
+  }
+
+  // ===== init =====
+  function init(){
+    // اسم المستخدم (واجهة)
+    $("uName").textContent = localStorage.getItem("userName") || "الكاشير";
+
+    // رصيد الوردية
+    const sb = parseFloat(localStorage.getItem("shiftBal") || "0");
+    $("shiftBal").textContent = money(sb);
+
+    renderAll();
+  }
+
+  function renderAll(){
+    renderCats();
+    renderSubs();
+    renderProducts();
+    renderTabs();
+    renderBasket();
+  }
+
+  init();
+</script>
+<div id="app"></div>
+<script type="module" src="src/router.js"></script>
+</body>
+</html>

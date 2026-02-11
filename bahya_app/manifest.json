@@ -1,0 +1,9 @@
+{
+  "name": "قهوة البلة",
+  "short_name": "البلة",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#041725",
+  "theme_color": "#041725",
+  "icons": []
+}
