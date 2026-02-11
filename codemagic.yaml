@@ -1,0 +1,21 @@
+workflows:
+  android-release:
+    name: Bahya Android APK
+    max_build_duration: 60
+    environment:
+      flutter: stable
+    scripts:
+      - name: Create Flutter project
+        script: |
+          rm -rf build_app
+          flutter create --platforms=android --project-name bahya_mobile build_app
+          cp -r src_app/lib build_app/
+          cp src_app/pubspec.yaml build_app/pubspec.yaml
+          cd build_app
+          flutter pub get
+      - name: Build APK
+        script: |
+          cd build_app
+          flutter build apk --release
+    artifacts:
+      - build_app/build/app/outputs/flutter-apk/app-release.apk
